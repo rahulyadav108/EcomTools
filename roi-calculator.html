@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROI Calculator | Marketing Campaign ROI | EcomTools</title>
+    <meta name="description" content="Calculate return on investment for your marketing campaigns. Free ROI calculator for e-commerce businesses.">
+    <meta name="keywords" content="ROI calculator, marketing ROI, campaign calculator, ecommerce tools">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">EcomTools</a>
+            <button class="mobile-menu-btn">☰</button>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+    
+    <main class="container">
+        <a href="index.html" class="back-btn">← Back to All Tools</a>
+        
+        <div class="tool-container">
+            <h1>ROI Calculator</h1>
+            <p class="subtitle">Calculate return on investment for your marketing campaigns</p>
+            
+            <div class="calculator-grid">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="campaignCost">Campaign Cost (₹)</label>
+                        <input type="number" id="campaignCost" value="5000" min="0" step="1">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="conversionRate">Conversion Rate (%)</label>
+                        <input type="number" id="conversionRate" value="2.5" min="0" max="100" step="0.1">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="avgOrderValue">Average Order Value (₹)</label>
+                        <input type="number" id="avgOrderValue" value="2000" min="0" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="visitors">Number of Visitors</label>
+                        <input type="number" id="visitors" value="10000" min="0">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="productCost">Product Cost (%)</label>
+                        <input type="number" id="productCost" value="40" min="0" max="100" step="0.1">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="otherCosts">Other Costs (%)</label>
+                        <input type="number" id="otherCosts" value="15" min="0" max="100" step="0.1">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn" id="calculateBtn">Calculate ROI</button>
+            
+            <div class="results" id="results">
+                <h2>ROI Analysis</h2>
+                <div class="result-item">
+                    <span>Total Revenue:</span>
+                    <span class="result-value" id="totalRevenue">₹0.00</span>
+                </div>
+                <div class="result-item">
+                    <span>Total Costs:</span>
+                    <span class="result-value" id="totalCosts">₹0.00</span>
+                </div>
+                <div class="result-item">
+                    <span>Net Profit:</span>
+                    <span class="result-value profit" id="netProfit">₹0.00</span>
+                </div>
+                <div class="result-item">
+                    <span>ROI Percentage:</span>
+                    <span class="result-value profit" id="roiPercentage">0%</span>
+                </div>
+                <div class="result-item">
+                    <span>ROI Multiple:</span>
+                    <span class="result-value profit" id="roiMultiple">0x</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2023 EcomTools. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('calculateBtn').addEventListener('click', calculateROI);
+        
+        function calculateROI() {
+            // Get input values
+            const campaignCost = parseFloat(document.getElementById('campaignCost').value) || 0;
+            const conversionRate = parseFloat(document.getElementById('conversionRate').value) || 0;
+            const avgOrderValue = parseFloat(document.getElementById('avgOrderValue').value) || 0;
+            const visitors = parseInt(document.getElementById('visitors').value) || 0;
+            const productCostPercent = parseFloat(document.getElementById('productCost').value) || 0;
+            const otherCostsPercent = parseFloat(document.getElementById('otherCosts').value) || 0;
+            
+            // Calculations
+            const conversions = visitors * (conversionRate / 100);
+            const totalRevenue = conversions * avgOrderValue;
+            const productCost = totalRevenue * (productCostPercent / 100);
+            const otherCosts = totalRevenue * (otherCostsPercent / 100);
+            const totalCosts = campaignCost + productCost + otherCosts;
+            const netProfit = totalRevenue - totalCosts;
+            const roiPercentage = (netProfit / campaignCost) * 100;
+            const roiMultiple = netProfit / campaignCost;
+            
+            // Display results
+            document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalCosts').textContent = `₹${totalCosts.toFixed(2)}`;
+            
+            const netProfitElement = document.getElementById('netProfit');
+            netProfitElement.textContent = `₹${netProfit.toFixed(2)}`;
+            netProfitElement.className = netProfit >= 0 ? 'result-value profit' : 'result-value loss';
+            
+            const roiPercentageElement = document.getElementById('roiPercentage');
+            roiPercentageElement.textContent = `${roiPercentage.toFixed(2)}%`;
+            roiPercentageElement.className = roiPercentage >= 0 ? 'result-value profit' : 'result-value loss';
+            
+            document.getElementById('roiMultiple').textContent = `${roiMultiple.toFixed(2)}x`;
+        }
+        
+        // Initialize with default values
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateROI();
+            
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                });
+                
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            navLinks.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

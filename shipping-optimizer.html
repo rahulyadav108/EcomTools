@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Optimizer | Best Shipping Rates | EcomTools</title>
+    <meta name="description" content="Find the best shipping rates and delivery options for your e-commerce business. Compare courier services and optimize shipping costs.">
+    <meta name="keywords" content="shipping optimizer, courier rates, delivery options, ecommerce shipping">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">EcomTools</a>
+            <button class="mobile-menu-btn">☰</button>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+    
+    <main class="container">
+        <a href="index.html" class="back-btn">← Back to All Tools</a>
+        
+        <div class="tool-container">
+            <h1>Shipping Optimizer</h1>
+            <p class="subtitle">Find the best shipping rates and delivery options</p>
+            
+            <div class="calculator-grid">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="originPincode">Origin Pincode</label>
+                        <input type="text" id="originPincode" maxlength="6" placeholder="110001">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="destinationPincode">Destination Pincode</label>
+                        <input type="text" id="destinationPincode" maxlength="6" placeholder="400001">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="packageWeight">Package Weight (kg)</label>
+                        <input type="number" id="packageWeight" min="0" step="0.1" value="0.5">
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="packageLength">Package Length (cm)</label>
+                        <input type="number" id="packageLength" min="0" value="20">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="packageWidth">Package Width (cm)</label>
+                        <input type="number" id="packageWidth" min="0" value="15">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="packageHeight">Package Height (cm)</label>
+                        <input type="number" id="packageHeight" min="0" value="10">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="deliverySpeed">Delivery Speed Preference</label>
+                <select id="deliverySpeed">
+                    <option value="standard">Standard (4-7 days)</option>
+                    <option value="express">Express (2-3 days)</option>
+                    <option value="nextday">Next Day</option>
+                </select>
+            </div>
+            
+            <button class="btn" id="calculateShippingBtn">Find Best Rates</button>
+            
+            <div class="results" id="results">
+                <h2>Recommended Shipping Options</h2>
+                <div class="shipping-options" id="shippingOptions">
+                    <!-- Shipping options will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2023 EcomTools. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Sample shipping providers data
+        const shippingProviders = [
+            { 
+                name: "Delhivery", 
+                rates: [
+                    { type: "standard", base: 35, perKg: 25, volumetricDivisor: 5000, deliveryDays: "4-7" },
+                    { type: "express", base: 70, perKg: 40, volumetricDivisor: 5000, deliveryDays: "2-3" },
+                    { type: "nextday", base: 120, perKg: 60, volumetricDivisor: 5000, deliveryDays: "1" }
+                ]
+            },
+            { 
+                name: "Blue Dart",
+                rates: [
+                    { type: "standard", base: 50, perKg: 30, volumetricDivisor: 4000, deliveryDays: "3-5" },
+                    { type: "express", base: 90, perKg: 50, volumetricDivisor: 4000, deliveryDays: "2-3" },
+                    { type: "nextday", base: 150, perKg: 70, volumetricDivisor: 4000, deliveryDays: "1" }
+                ]
+            },
+            { 
+                name: "Ecom Express", 
+                rates: [
+                    { type: "standard", base: 30, perKg: 20, volumetricDivisor: 6000, deliveryDays: "5-7" },
+                    { type: "express", base: 60, perKg: 35, volumetricDivisor: 6000, deliveryDays: "2-3" },
+                    { type: "nextday", base: 100, perKg: 50, volumetricDivisor: 6000, deliveryDays: "1" }
+                ]
+            }
+        ];
+
+        document.getElementById('calculateShippingBtn').addEventListener('click', calculateShipping);
+
+        function calculateShipping() {
+            // Get input values
+            const weight = parseFloat(document.getElementById('packageWeight').value) || 0.5;
+            const length = parseFloat(document.getElementById('packageLength').value) || 20;
+            const width = parseFloat(document.getElementById('packageWidth').value) || 15;
+            const height = parseFloat(document.getElementById('packageHeight').value) || 10;
+            const deliverySpeed = document.getElementById('deliverySpeed').value;
+            
+            // Calculate volumetric weight
+            const volumetricWeight = (length * width * height) / 5000; // Standard divisor for India
+            
+            // Chargeable weight is the greater of actual or volumetric
+            const chargeableWeight = Math.max(weight, volumetricWeight);
+            
+            // Calculate rates for each provider
+            const results = shippingProviders.map(provider => {
+                const rate = provider.rates.find(r => r.type === deliverySpeed) || provider.rates[0];
+                const shippingCost = rate.base + (Math.max(1, Math.ceil(chargeableWeight)) - 1) * rate.perKg;
+                
+                return {
+                    provider: provider.name,
+                    deliveryDays: rate.deliveryDays,
+                    cost: shippingCost,
+                    chargeableWeight: chargeableWeight.toFixed(2)
+                };
+            });
+            
+            // Sort by lowest cost
+            results.sort((a, b) => a.cost - b.cost);
+            
+            // Display results
+            const resultsContainer = document.getElementById('shippingOptions');
+            resultsContainer.innerHTML = '';
+            
+            results.forEach(result => {
+                const option = document.createElement('div');
+                option.className = 'shipping-option';
+                option.innerHTML = `
+                    <div class="provider-info">
+                        <h3>${result.provider}</h3>
+                    </div>
+                    <div class="option-details">
+                        <span>Estimated Delivery: ${result.deliveryDays} days</span>
+                        <span>Chargeable Weight: ${result.chargeableWeight} kg</span>
+                        <span class="shipping-cost">₹${result.cost.toFixed(2)}</span>
+                    </div>
+                `;
+                resultsContainer.appendChild(option);
+            });
+        }
+        
+        // Initialize with default values
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateShipping();
+            
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                });
+                
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            navLinks.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
